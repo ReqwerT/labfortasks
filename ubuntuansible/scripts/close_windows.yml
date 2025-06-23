@@ -1,0 +1,11 @@
+---
+- name: Windows makineleri kapat
+  hosts: win
+  gather_facts: no
+  tasks:
+
+    - name: Bilgisayarı kapat (shutdown)
+      win_command: shutdown /s /t 0
+      async: 0
+      poll: 0
+

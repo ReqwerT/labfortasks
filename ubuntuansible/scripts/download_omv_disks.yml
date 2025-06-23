@@ -1,0 +1,25 @@
+ 
+---
+- name: Download files and create disk
+  hosts: baremetal
+  become: yes
+  tasks:
+
+    # Google Drive'dan dosyaları indir
+    - name: Download file from Google Drive
+      get_url:
+        url: "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"  # Google Drive dosya ID'sini buraya ekleyin
+        dest: "/home/reqwert/Desktop/vagrantomv/images/file1"  # İlk dosya adını değiştirebilirsiniz
+        headers:
+          User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+    - name: Download second file from Google Drive
+      get_url:
+        url: "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"  # İkinci dosya ID'sini buraya ekleyin
+        dest: "/home/reqwert/Desktop/vagrantomv/images/file2"  # İkinci dosya adını değiştirebilirsiniz
+        headers:
+          User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+    # VMDK disk oluştur
+    - name: Create 20GB VMDK disk
+      command: "qemu-img create -f vmdk /home/reqwert/Desktop/vagrantomv/images/disk.vmdk 20G"

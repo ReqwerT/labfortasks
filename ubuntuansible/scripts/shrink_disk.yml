@@ -1,0 +1,24 @@
+ 
+- name: Shrink C:\ drive and create D:\ exFAT volume
+  hosts: win
+  gather_facts: no
+  tasks:
+    - name: Execute disk shrink and create OMV partition
+      win_shell: |
+        $shrinkSize = 20GB
+
+        # C: sürücüsünü küçült
+        $cPart = Get-Partition -DriveLetter C
+        Resize-Partition -DriveLetter C -Size ($cPart.Size - $shrinkSize)
+
+        Start-Sleep -Seconds 3
+
+        # Boş alanı al ve yeni bölüm oluştur
+        $disk = (Get-Partition -DriveLetter C | Get-Disk)
+        $new = New-Partition -DiskNumber $disk.Number -UseMaximumSize -AssignDriveLetter
+
+        # Formatla ve etiketle
+        Format-Volume -DriveLetter $new.DriveLetter -FileSystem exFAT -NewFileSystemLabel "OMV" -Confirm:$false
+
+      args:
+        executable: powershell.exe

@@ -1,0 +1,16 @@
+---
+- name: VMDK dosyalarını D sürücüsüne kopyala
+  hosts: win
+  gather_facts: no
+
+  tasks:
+    - name: VMDK dosyalarını D sürücüsüne kopyala (PowerShell ile)
+      win_shell: |
+        Copy-Item -Path "C:\Users\vagrant\shared_f\disk.vmdk" -Destination "D:" -Force
+        Copy-Item -Path "C:\Users\vagrant\shared_f\disk1.vmdk" -Destination "D:" -Force
+      register: copy_result
+
+    - name: Kopyalama sonucu
+      debug:
+        var: copy_result.stdout
+

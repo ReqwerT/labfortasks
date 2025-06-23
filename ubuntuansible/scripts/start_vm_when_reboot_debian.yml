@@ -1,0 +1,72 @@
+---
+- name: QEMU VM otomatik başlatma (vda2 mount + NAT + systemd)
+  hosts: lin
+  become: yes
+  vars:
+    mount_point: /media/OMV
+    device: /dev/vda2
+    vm_script_path: /usr/local/bin/start_qemu_vm.sh
+    vm_service_path: /etc/systemd/system/qemu-vm.service
+
+  tasks:
+
+  - name: vda2 diskini /media/OMV dizinine mount et
+    mount:
+      src: "{{ device }}"
+      path: "{{ mount_point }}"
+      fstype: auto
+      state: mounted
+
+  - name: QEMU başlatma scriptini oluştur
+    copy:
+      dest: "{{ vm_script_path }}"
+      mode: '0755'
+      content: |
+        #!/bin/bash
+
+        # VDA2 tekrar mount edilsin (garantiye almak için)
+        mountpoint="{{ mount_point }}"
+        device="{{ device }}"
+        if ! mount | grep -q "$mountpoint"; then
+          mount "$device" "$mountpoint"
+        fi
+
+        # VM zaten çalışıyor mu kontrol
+        if pgrep -f "qemu-system-x86_64.*disk.vmdk" > /dev/null; then
+          echo "VM zaten çalışıyor."
+          exit 0
+        fi
+
+        # QEMU başlat
+        /usr/bin/qemu-system-x86_64 \
+          -name auto-vm \
+          -m 2048 \
+          -smp 2 \
+          -drive file={{ mount_point }}/disk.vmdk,format=vmdk,if=virtio \
+          -drive file={{ mount_point }}/disk1.vmdk,format=vmdk,if=virtio \
+          -netdev user,id=net0,hostfwd=tcp::8080-:80,hostfwd=tcp::8443-:443,hostfwd=tcp::2222-:22 \
+          -device virtio-net-pci,netdev=net0 \
+          -nographic
+
+  - name: systemd servisini oluştur
+    copy:
+      dest: "{{ vm_service_path }}"
+      mode: '0644'
+      content: |
+        [Unit]
+        Description=QEMU Sanal Makine Otomatik Başlatma
+        After=network.target
+
+        [Service]
+        Type=simple
+        ExecStart={{ vm_script_path }}
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: systemd servisini etkinleştir ve başlat
+    systemd:
+      name: qemu-vm
+      enabled: true
+      state: restarted

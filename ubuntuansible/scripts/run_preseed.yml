@@ -1,0 +1,31 @@
+---
+- name: Run auto_debian_install.sh on baremetal as root and stream output
+  hosts: baremetal
+  become: false  # root ile doğrudan bağlanıyoruz
+  gather_facts: false  # hız için kapatıldı, gerekirse true yapabilirsin
+
+  tasks:
+    - name: Ensure preseed script exists
+      ansible.builtin.stat:
+        path: /home/reqwert/Desktop/vagrantomv/ubuntuansible/preseed/auto_debian_install.sh
+      register: script_check
+
+    - name: Fail if script not found
+      ansible.builtin.fail:
+        msg: "Script bulunamadı: auto_debian_install.sh"
+      when: not script_check.stat.exists
+
+    - name: Run preseed script and log output
+      ansible.builtin.shell: |
+        bash auto_debian_install.sh 2>&1 | tee /tmp/auto_install.log
+      args:
+        chdir: /home/reqwert/Desktop/vagrantomv/ubuntuansible/preseed/
+        executable: /bin/bash
+      async: 0
+      poll: 15
+      register: result
+
+    - name: Show final output
+      debug:
+        var: result.stdout_lines
+
