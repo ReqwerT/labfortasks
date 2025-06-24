@@ -76,7 +76,7 @@ This script:
 
 ### OMV Disk and Repo
 - [OMV Disk Download](https://drive.google.com/file/d/1Xf_O8pprBlkvgMcjBodDnoYdFOh6JFC9/view?usp=sharing)
-- [GitHub Repo](#)
+- [GitHub Repo](https://github.com/ReqwerT/labfortasks/tree/main)
 
 ---
 
