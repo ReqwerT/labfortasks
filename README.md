@@ -39,5 +39,6 @@ Terminal üzerinden aşağıdaki adımları takip ederek sistemi başlatabilirsi
 ```bash
 cd libvirt
 ./start_all.sh
+```
 
 Bu komut, tüm lab ortamını otomatik olarak kurar ve çalıştırır. Sistemin tüm teknik süreci, kurulum zinciri ve mimari detayları için report dosyasını inceleyebilirsiniz.
