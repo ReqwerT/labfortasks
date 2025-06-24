@@ -31,17 +31,41 @@ To run the system, we first need to download the files from github. Then our “
 - Ubuntu virtual machine gets static IP: 192.168.121.20 and runs /libvirt/scriptsdeb/req.sh to:
   - Update packages, install ansible and winrm
   - Apply the following playbooks in order:
-    - shrinkdisk.yml
-    - copy_disks.yml
-    - start_vm.yml
-    - close_windows.yml
-    - run_preseed.yml
-    - run.yml
-    - install_qemu.yml
-    - start_vm_when_reboot_debian.yml
-    - change_vda.yml
-    - delete_enp1s0.yml
-    - enable_dualboot_on_baremetal.yml
+    ## Ansible Playbooks Summary
+
+      ### `shrinkdisk.yml`
+      Shrinks 20GB of free space from the 60GB Windows main disk. Formats it as exFAT and assigns label `D:` for OMV use. Ensures cross-platform compatibility (Windows/Linux/macOS).
+      
+      ### `copy_disks.yml`
+      Copies `disk.vmdk` and `disk1.vmdk` into the newly created `D:` drive in the Windows VM. These disks will be used later to run the nested OMV VM.
+      
+      ### `start_vm.yml`
+      Creates QEMU startup configs (`.bat` and `.ps1`) to launch OMV inside Windows with 4GB RAM, 2 vCPUs, and disk.vmdk as boot + disk1.vmdk as extra storage. Port forwarding: 8080 (HTTP), 8443 (HTTPS), 2222 (SSH). Adds startup `.bat` file to Windows Startup folder.
+      
+      ### `close_windows.yml`
+      Gracefully shuts down the Windows VM after provisioning is done to release disk locks. Adds a 30-second wait afterward.
+      
+      ### `run_preseed.yml`
+      Runs `auto_debian_install.sh` on baremetal host to start a new VM with two disks (debian.qcow2 as vda, libvirt_winvm.img as vdb) and install Debian OS via HTTP-hosted preseed file.
+      
+      ### `run.yml`
+      Uses `expect` script `set_ip_console.sh` to connect via `virsh console` to the newly installed Debian VM and assign a static IP `192.168.121.145` by editing `/etc/network/interfaces`.
+      
+      ### `install_qemu.yml`
+      Installs QEMU on the Debian VM (whose IP was statically set). Required to run the OMV disk later as a service.
+      
+      ### `start_vm_when_reboot_debian.yml`
+      Configures OMV disk to auto-mount using `/etc/fstab` and sets up `qemu-vm.service` to auto-start OMV at every Debian boot. Uses `kvm` acceleration. Forwards ports 8080, 8443, 2222.
+      
+      ### `change_vda.yml`
+      Updates `/etc/fstab` in the Debian VM so that the mounted OMV disk path is corrected from `vdb` to `vda` to prevent boot issues when the VM layout changes.
+      
+      ### `delete_enp1s0.yml`
+      Removes static IP config lines from `/etc/network/interfaces` and assigns new static IP `192.168.121.145` to interface `enp8s0`. Then shuts down the VM silently.
+      
+      ### `enable_dualboot_on_baremetal.yml`
+      Accesses the VM config on the baremetal host. Marks second disk as bootable and enables boot menu. Undefines and redefines the VM so user can choose Debian or Windows on startup.
+      
 
 # IP Table and Credentials
 
