@@ -1,0 +1,10 @@
+---
+- name: Safely shut down the system
+  hosts: lin
+  become: true
+  tasks:
+    - name: Execute shutdown -h now command
+      shell: shutdown -h now "System is being shut down by Ansible"
+      async: 0
+      poll: 0
+      ignore_errors: true

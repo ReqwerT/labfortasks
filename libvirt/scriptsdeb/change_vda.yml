@@ -1,0 +1,17 @@
+---
+- name: Update /etc/fstab
+  hosts: lin
+  become: true
+  tasks:
+    - name: Remove /dev/vdb2 mount entry
+      lineinfile:
+        path: /etc/fstab
+        regexp: '^/dev/vdb2\s+\/media\/OMV\b.*$'
+        state: absent
+
+    - name: Add /dev/vda2 mount entry if not present
+      lineinfile:
+        path: /etc/fstab
+        line: '/dev/vda2 /media/OMV auto defaults 0 0'
+        insertafter: EOF
+        state: present

@@ -1,0 +1,32 @@
+---
+- name: Remove enp1s0 IP config and add static IP for enp8s0
+  hosts: lin
+  become: true
+  tasks:
+
+    - name: Remove lines related to enp1s0
+      lineinfile:
+        path: /etc/network/interfaces
+        state: absent
+        regexp: "{{ item }}"
+      loop:
+        - '^auto enp8s0$'
+        - '^iface enp8s0 inet static$'
+        - '^auto enp1s0$'
+        - '^iface enp1s0 inet static$'
+        - '^\s*address 192\.168\.121\.145$'
+        - '^\s*netmask 255\.255\.255\.0$'
+        - '^\s*gateway 192\.168\.121\.1$'
+        - '^\s*dns-nameservers 8\.8\.8\.8$'
+
+    - name: Add static IP block for enp8s0
+      blockinfile:
+        path: /etc/network/interfaces
+        marker: "# {mark} enp8s0 block"
+        block: |
+          auto enp8s0
+          iface enp8s0 inet static
+            address 192.168.121.145
+            netmask 255.255.255.0
+            gateway 192.168.121.1
+            dns-nameservers 8.8.8.8

@@ -1,0 +1,47 @@
+---
+- name: Enable boot menu and make vda + vdb disks bootable
+  hosts: baremetal
+  become: true
+  tasks:
+    - name: Get VM XML definition
+      command: virsh dumpxml windows11_winvm
+      register: vm_xml
+
+    - name: Save XML file temporarily
+      copy:
+        content: "{{ vm_xml.stdout }}"
+        dest: /tmp/windows11_default.xml
+
+    - name: Add <bootmenu enable="yes"/> to <os> block
+      replace:
+        path: /tmp/windows11_default.xml
+        regexp: '(<os[^>]*>)'
+        replace: '\1\n  <bootmenu enable="yes"/>'
+
+    - name: Remove <boot dev=.../> lines
+      replace:
+        path: /tmp/windows11_default.xml
+        regexp: '\s*<boot dev=.*?/>'
+        replace: ''
+
+    - name: Add <boot order="1"/> for vda
+      replace:
+        path: /tmp/windows11_default.xml
+        regexp: "(<target dev='vda' bus='virtio'/>)"
+        replace: '\1\n      <boot order="2"/>'
+
+    - name: Add <boot order="2"/> for vdb
+      replace:
+        path: /tmp/windows11_default.xml
+        regexp: "(<target dev='vdb' bus='virtio'/>)"
+        replace: '\1\n      <boot order="1"/>'
+
+    - name: Undefine the VM
+      command: virsh undefine windows11_winvm --managed-save
+      ignore_errors: true
+
+    - name: Redefine the VM using XML
+      command: virsh define /tmp/windows11_default.xml
+
+    - name: Start the VM
+      command: virsh start windows11_winvm
