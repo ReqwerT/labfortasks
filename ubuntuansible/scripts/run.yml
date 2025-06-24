@@ -1,8 +1,0 @@
----
-- name: VM'e static IP ayarı yapan scripti çalıştır
-  hosts: baremetal
-  become: true
-  tasks:
-    - name: Static IP scriptini çalıştır
-      command: expect /home/reqwert/Desktop/vagrantomv/ubuntuansible/static_ip/set_ip_console.sh
-
