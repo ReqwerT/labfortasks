@@ -17,20 +17,20 @@ Sistemi kurmadan önce aşağıdaki bileşenlerin yüklü olması ve yapılandı
 Aşağıdaki dosyaların ilgili satırlarına aşağıda verilen tam yolları eklemelisiniz:
 
 - `/scriptsdeb/run_preseed.yml` → satır **10**  
-  `path:` satırına:  
-  `/libvirt/preseed/auto_debian_install.sh`
+  `path:` satırına;
+  `/libvirt/preseed/auto_debian_install.sh` dosyasının tam yolunu
 
 - `/scriptsdeb/run_preseed.yml` → satır **22**  
   `chdir:` satırına:  
-  `/libvirt/preseed/`
+  `/libvirt/preseed/` klasörünün tam yolunu
 
-- `/scriptsdeb/ru.yml` → satır **7**  
+- `/scriptsdeb/run.yml` → satır **7**  
   `command:` satırına:  
-  `/libvirt/static_ip/set_ip_console.sh`
+  `/libvirt/static_ip/set_ip_console.sh` dosyasının tam yolunu
 
 - `/preseed/auto_debian_install.sh` → satır **10**  
   `PRESEED_DIR=` satırına:  
-  `/libvirt/preseed/`
+  `/libvirt/preseed/` klasörünün tam yolunu girmelisiniz.
 
 ## Sistemi Başlatma
 
@@ -40,5 +40,4 @@ Terminal üzerinden aşağıdaki adımları takip ederek sistemi başlatabilirsi
 cd libvirt
 ./start_all.sh
 ```
-
 Bu komut, tüm lab ortamını otomatik olarak kurar ve çalıştırır. Sistemin tüm teknik süreci, kurulum zinciri ve mimari detayları için report dosyasını inceleyebilirsiniz.
