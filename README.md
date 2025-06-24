@@ -42,4 +42,4 @@ You can start the system by following the steps below via the terminal:
 cd libvirt
 ./start_all.sh
 ```
-This command automatically installs and runs the entire lab environment. You can review the report file for the entire technical process, installation chain and architectural details of the system.
+This command automatically installs and runs the entire lab environment. You can review the Task1 file for the entire technical process, installation chain and architectural details of the system.
