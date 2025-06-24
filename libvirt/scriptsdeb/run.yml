@@ -1,0 +1,7 @@
+---
+- name: Run the script that sets static IP on the VM
+  hosts: baremetal
+  become: true
+  tasks:
+    - name: Execute static IP configuration script
+      command: expect /home/reqwert/Desktop/caliisyo/libvirt/static_ip/set_ip_console.sh
