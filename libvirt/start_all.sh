@@ -6,8 +6,10 @@ check_command() {
   command -v "$1" &>/dev/null
 }
 
-# [0/4] Check for required dependencies
-echo "[0/4] Checking required tools..."
+# -------------------------------------------------------------
+# [0/5] Check for required dependencies
+# -------------------------------------------------------------
+echo "[0/5] Checking required tools..."
 
 MISSING=()
 
@@ -23,28 +25,33 @@ if ! vagrant plugin list | grep -q vagrant-libvirt; then
   MISSING+=("vagrant-libvirt plugin")
 fi
 
+if ! check_command sshd; then
+  MISSING+=("openssh-server")
+fi
+
 if [ ${#MISSING[@]} -ne 0 ]; then
   echo "[!] The following required components are missing:"
-  for item in "${MISSING[@]}"; do
-    echo "  - $item"
-  done
+  printf '  - %s\n' "${MISSING[@]}"
 
   read -p "Do you want to install them now? [y/N]: " choice
   case "$choice" in
     y|Y )
       echo "[*] Installing dependencies..."
 
+      # Vagrant
       if ! check_command vagrant; then
         echo "Installing Vagrant..."
         sudo apt update
         sudo apt install -y vagrant
       fi
 
+      # Libvirt + QEMU
       if ! check_command virsh; then
         echo "Installing libvirt..."
         sudo apt install -y libvirt-daemon-system libvirt-clients qemu-kvm
       fi
 
+      # vagrant-libvirt plugin
       if ! vagrant plugin list | grep -q vagrant-libvirt; then
         echo "Installing system packages for vagrant-libvirt plugin..."
         sudo apt install -y ruby-dev libxml2-dev libxslt1-dev zlib1g-dev build-essential pkg-config libguestfs-tools
@@ -53,6 +60,12 @@ if [ ${#MISSING[@]} -ne 0 ]; then
         VAGRANT_DISABLE_STRICT_DEPENDENCY_ENFORCEMENT=1 \
         NOKOGIRI_USE_SYSTEM_LIBRARIES=1 \
         vagrant plugin install vagrant-libvirt
+      fi
+
+      # OpenSSH Server
+      if ! check_command sshd; then
+        echo "Installing OpenSSH server..."
+        sudo apt install -y openssh-server
       fi
       ;;
     * )
@@ -64,13 +77,38 @@ else
   echo "[✓] All required tools are present."
 fi
 
-# [1/4] Check and create 'vagrant-libvirt' network if it doesn't exist
-echo "[1/4] Checking 'vagrant-libvirt' libvirt network..."
+# -------------------------------------------------------------
+# [1/5] Ensure SSH service is active & root login enabled
+# -------------------------------------------------------------
+echo "[1/5] Configuring SSH server..."
 
-if ! virsh net-info vagrant-libvirt &> /dev/null; then
+# 1.1 Enable root login if not already
+sudo sed -i \
+  -e 's/^[#[:space:]]*PermitRootLogin.*/PermitRootLogin yes/' \
+  -e '$aPermitRootLogin yes' \
+  /etc/ssh/sshd_config
+
+# 1.2 Restart SSH service
+sudo systemctl enable ssh
+sudo systemctl restart ssh
+
+# 1.3 Check root password status; if NP (no password) then prompt
+if sudo passwd -S root | grep -q " NP "; then
+  echo "Root account has no password set. Please create one now."
+  sudo passwd root
+fi
+
+echo "SSH server ready — root login permitted."
+
+# -------------------------------------------------------------
+# [2/5] Check and create 'vagrant-libvirt' network if needed
+# -------------------------------------------------------------
+echo "[2/5] Checking 'vagrant-libvirt' libvirt network..."
+
+if ! virsh net-info vagrant-libvirt &>/dev/null; then
   echo "Network 'vagrant-libvirt' not found. Creating..."
 
-  cat <<EOF > /tmp/vagrant-libvirt.xml
+  cat <<EOF >/tmp/vagrant-libvirt.xml
 <network>
   <name>vagrant-libvirt</name>
   <bridge name='virbr121' stp='on' delay='0'/>
@@ -83,20 +121,27 @@ if ! virsh net-info vagrant-libvirt &> /dev/null; then
 </network>
 EOF
 
-  sudo virsh net-define /tmp/vagrant-libvirt.xml
+  sudo virsh net-define   /tmp/vagrant-libvirt.xml
   sudo virsh net-autostart vagrant-libvirt
-  sudo virsh net-start vagrant-libvirt
+  sudo virsh net-start    vagrant-libvirt
   echo "[✓] 'vagrant-libvirt' network created and started."
 else
   echo "[✓] Network 'vagrant-libvirt' already exists."
 fi
 
-# [2/4] Start Windows VM
-echo "[2/4] Starting Windows VM (winvm)..."
+# -------------------------------------------------------------
+# [3/5] Start Windows VM
+# -------------------------------------------------------------
+echo "[3/5] Starting Windows VM (winvm)..."
 vagrant up winvm
 
-# [3/4] Start Ubuntu VM
-echo "[3/4] Starting Ubuntu VM (ubuntu)..."
+# -------------------------------------------------------------
+# [4/5] Start Ubuntu VM
+# -------------------------------------------------------------
+echo "[4/5] Starting Ubuntu VM (ubuntu)..."
 vagrant up ubuntu --provider=libvirt
 
+# -------------------------------------------------------------
+# [5/5] Done
+# -------------------------------------------------------------
 echo "[✓] All virtual machines are up and running."
