@@ -104,7 +104,7 @@ echo "SSH server ready — root login permitted."
 # [2/5] Check and create 'vagrant-libvirt' network if needed
 # -------------------------------------------------------------
 echo "[2/5] Checking 'vagrant-libvirt' libvirt network..."
-
+sudo apt install expect
 if ! virsh net-info vagrant-libvirt &>/dev/null; then
   echo "Network 'vagrant-libvirt' not found. Creating..."
 
