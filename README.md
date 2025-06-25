@@ -12,6 +12,7 @@ Before installing the system, the following components must be installed and con
 4. Baremetal access information:
 
 Enter your access information in the `[baremetal:vars]` section in the `/libvirt/scriptsdeb/hosts.ini` file.
+5. SSH must be installed on the baremetal system, and root login must be enabled via the `sshd_config` file.
 
 ## Path Settings (Must Be Done)
 
