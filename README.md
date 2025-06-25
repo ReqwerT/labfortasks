@@ -9,10 +9,11 @@ Before installing the system, the following components must be installed and con
 1. `vagrant`
 2. `libvirt`
 3. `vagrant-libvirt` plugin
-4. Baremetal access information:
+4. SSH must be installed on the baremetal system, and root login must be enabled via the `sshd_config` file.
+5. Baremetal access information:
 
 Enter your access information in the `[baremetal:vars]` section in the `/libvirt/scriptsdeb/hosts.ini` file.
-5. SSH must be installed on the baremetal system, and root login must be enabled via the `sshd_config` file.
+
 
 ## Path Settings (Must Be Done)
 
