@@ -46,7 +46,12 @@ if [ ${#MISSING[@]} -ne 0 ]; then
       fi
 
       if ! vagrant plugin list | grep -q vagrant-libvirt; then
-        echo "Installing vagrant-libvirt plugin..."
+        echo "Installing system packages for vagrant-libvirt plugin..."
+        sudo apt install -y ruby-dev libxml2-dev libxslt1-dev zlib1g-dev build-essential pkg-config libguestfs-tools
+
+        echo "Installing vagrant-libvirt plugin (with system libxml)..."
+        VAGRANT_DISABLE_STRICT_DEPENDENCY_ENFORCEMENT=1 \
+        NOKOGIRI_USE_SYSTEM_LIBRARIES=1 \
         vagrant plugin install vagrant-libvirt
       fi
       ;;
