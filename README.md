@@ -45,3 +45,29 @@ cd libvirt
 ./start_all.sh
 ```
 This command automatically installs and runs the entire lab environment. You can review the [report.md](https://github.com/ReqwerT/labfortasks/blob/main/report.md) file for the entire technical process, installation chain and architectural details of the system.
+
+## What This start_all.sh Script Does (Step by Step)
+
+1. **Requirement check and installation**  
+   - Checks if the following are installed on the baremetal system:  
+     `vagrant`, `libvirt`, `vagrant-libvirt` plugin, and `openssh-server`  
+   - Automatically installs any missing components with user confirmation.
+
+2. **Configure SSH server**  
+   - Ensures that the SSH service is running.  
+   - Edits `/etc/ssh/sshd_config` to enable root SSH login by adding:  
+     `PermitRootLogin yes`  
+   - This allows Ansible to access the machine as root.
+
+3. **Starts Windows virtual machine**  
+   - Executes:  
+     `vagrant up winvm`  
+   - Launches the Windows VM defined as `winvm` in the Vagrantfile.
+
+4. **Starts Ubuntu virtual machine**  
+   - Executes:  
+     `vagrant up ubuntu --provider=libvirt`  
+   - Launches the Ubuntu VM using the `libvirt` provider.
+
+5. **Final status**  
+   - Both virtual machines are up and running, ready for Ansible provisioning or further tasks.
