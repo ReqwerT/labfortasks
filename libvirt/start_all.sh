@@ -6,9 +6,8 @@ check_command() {
   command -v "$1" &>/dev/null
 }
 
-# -------------------------------------------------------------
 # [0/5] Check for required dependencies
-# -------------------------------------------------------------
+
 echo "[0/5] Checking required tools..."
 
 MISSING=()
@@ -27,6 +26,10 @@ fi
 
 if ! check_command sshd; then
   MISSING+=("openssh-server")
+fi
+
+if ! check_command expect; then
+  MISSING+=("expect")
 fi
 
 if [ ${#MISSING[@]} -ne 0 ]; then
@@ -67,6 +70,12 @@ if [ ${#MISSING[@]} -ne 0 ]; then
         echo "Installing OpenSSH server..."
         sudo apt install -y openssh-server
       fi
+
+      # Expect
+      if ! check_command expect; then
+        echo "Installing expect..."
+        sudo apt install -y expect
+      fi
       ;;
     * )
       echo "Aborting. Please install the missing dependencies and try again."
@@ -77,9 +86,8 @@ else
   echo "[✓] All required tools are present."
 fi
 
-# -------------------------------------------------------------
 # [1/5] Ensure SSH service is active & root login enabled
-# -------------------------------------------------------------
+
 echo "[1/5] Configuring SSH server..."
 
 # 1.1 Enable root login if not already
@@ -100,11 +108,10 @@ fi
 
 echo "SSH server ready — root login permitted."
 
-# -------------------------------------------------------------
 # [2/5] Check and create 'vagrant-libvirt' network if needed
-# -------------------------------------------------------------
+
 echo "[2/5] Checking 'vagrant-libvirt' libvirt network..."
-sudo apt install expect
+
 if ! virsh net-info vagrant-libvirt &>/dev/null; then
   echo "Network 'vagrant-libvirt' not found. Creating..."
 
@@ -129,19 +136,16 @@ else
   echo "[✓] Network 'vagrant-libvirt' already exists."
 fi
 
-# -------------------------------------------------------------
 # [3/5] Start Windows VM
-# -------------------------------------------------------------
+
 echo "[3/5] Starting Windows VM (winvm)..."
 vagrant up winvm
 
-# -------------------------------------------------------------
 # [4/5] Start Ubuntu VM
-# -------------------------------------------------------------
+
 echo "[4/5] Starting Ubuntu VM (ubuntu)..."
 vagrant up ubuntu --provider=libvirt
 
-# -------------------------------------------------------------
 # [5/5] Done
-# -------------------------------------------------------------
+
 echo "[✓] All virtual machines are up and running."
