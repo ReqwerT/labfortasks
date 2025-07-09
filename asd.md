@@ -115,3 +115,5 @@ We now have a dual-boot virtual machine:
 - The OMV virtual machine starts automatically on both systems,
 - For Windows, I can access OMV by entering the address http://192.168.121.130:8080 from another device on the network.
 - For Debian, I can access OMV by entering the address http://192.168.121.145:8080 from another device on the network.
+
+If you want to read all report files, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
