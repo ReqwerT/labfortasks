@@ -1,117 +1,117 @@
-# OTOMATİK LAB ORTAMI (VAGRANT + ANSIBLE)
+# AUTOMATED LAB ENVIRONMENT (VAGRANT + ANSIBLE)
 
-## Amaç
+## Purpose
 
-Vagrant ile kurduğum sanal makinelerin içine Ansible kullanarak;
+Using Ansible within the virtual machines I created with Vagrant, I:
 
-- Otomatik şekilde dualboot yapılandırılmış bir sistem oluşturdum,
-- Hangi işletim sistemi açılırsa açılsın, OMV sanal makinesine ortak diskler üzerinden otomatik erişim sağladım ve her açılışta OMV VM’nin otomatik başlamasını sağladım.
+- Created a system configured for automatic dual boot,
+- Provided automatic access to the OMV virtual machine via shared disks, regardless of the operating system booted, and ensured that the OMV VM automatically starts at every startup.
 
-## Yaptığım İşlemler
+## Steps I Performed
 
-- Windows makineme QEMU’nun son sürümünü yükledim, sanallaştırma teknolojilerini etkinleştirdim.
-- OMV için fiziksel diskimi 20 GB küçülttüm.
-- Bu diski `exFAT` formatında biçimlendirerek Linux, macOS ve Windows'tan erişilebilir hale getirdim.
-- OMV image dosyasını bu diske kopyaladım, ayrıca 10 GB ekstra `.vmdk` disk oluşturdum.
-- Windows açıldığında OMV VM’yi otomatik başlatan `.ps1` ve `.bat` dosyalarını ilgili klasörlere otomatik yerleştirdim.
-- `Vagrantfile` içine dualboot Debian kurulumu için 25 GB’lık `lastden.qcow2` diskini ekledim.
-- Bu diske preseed kullanarak Debian’ı tam otomatik kurdum ve statik IP atayarak Ansible erişimini sağladım.
-- Debian içine Ansible ile QEMU yükledim, OMV diskini mount ettim ve Debian her açıldığında OMV VM’nin otomatik başlaması için systemd servisi tanımladım.
+- Installed the latest version of QEMU on my Windows machine and enabled virtualization technologies.
+- Shrink my physical disk by 20 GB for OMV.
+- Formatted this disk in exFAT to make it accessible from Linux, macOS, and Windows.
+- Copy the OMV image file to this disk and also created an additional 10 GB `.vmdk` disk.
+- Automatically placed the `.ps1` and `.bat` files, which automatically start the OMV VM when Windows starts, in their respective folders.
+- I added the 25GB disk `lastden.qcow2` to the `Vagrantfile` for the dualboot Debian installation.
+- I automatically installed Debian on this disk using Preseed and provided Ansible access by assigning a static IP.
+- I installed QEMU with Ansible within Debian, mounted the OMV disk, and defined the systemd service to automatically start the OMV VM whenever Debian boots.
 
-## Gereksinimler
+## Requirements
 
-Bu sistemin çalışması için yalnızca şu 3 uygulama yeterli:
+This system only requires the following three applications:
 
 - Vagrant 2.4.7
 - libvirt 9.0.0
 - Ansible 2.4.18
 
-> **Not:** Tüm süreci bare-metal Debian 12 sistem üzerinde gerçekleştirdim.
+> **Note:** I performed the entire process on a bare-metal Debian 12 system.
 
-## Sidecar Notu
+## Sidecar Note
 
-İlk başta sidecar Ansible sanal makinesi kullanmayı denedim ama fazladan karmaşa yarattığı ve zaman zaman sistemi kilitlediği için doğrudan ana makine üzerinden Ansible ile devam ettim. İstenirse sidecar yapısını da tekrar entegre edebilirim.
+I initially tried using a sidecar Ansible virtual machine, but because it created additional complexity and occasionally crashed the system, I continued with Ansible directly on the host machine. I can also re-integrate the sidecar structure if desired.
 
-## Sistemi Başlatma
+## System Initialization
 
 ```bash
-# 1. Projeyi klonladım
+# 1. Download the project to your system
 git clone <repo-link>
 cd labfortasks/libvirt/
 
-# 2. Başlatma scriptine çalıştırma izni verdim
+# 2. Give execution permission to the startup script
 chmod +x start_all.sh
 
-# 3. ROOT olarak çalıştırıyorum
+# 3. Run as ROOT
 sudo ./start_all.sh
 ```
 
-Bu script sırasıyla şu işlemleri yapıyor:
+This script performs the following operations:
 
-- Gereksinim kontrolü yapıyor, eksikse kuruyor.
-- Sanal makineleri başlatıyor.
-- Ansible playbook’larını çalıştırıyor.
+- Checks requirements and installs them if they are missing.
+- Starts virtual machines.
+- Runs Ansible playbooks.
 
-## Sistem İşleyişi
+## System Operation
 
-### 1. Gereksinim Kontrolü
+### 1. Requirement Check
 
-Eksik program varsa script bunları otomatik olarak yüklüyor.
+If any programs are missing, the script automatically installs them.
 
-### 2. `winvm` Sanal Makinesini Başlatıyorum
+### 2. Starting the `winvm` Virtual Machine
 
-- Statik IP: `192.168.121.130`
-- `Vagrantfile` içindeki özel shell scriptler tetikleniyor:
-  - `/images` ve `/libvirt/scriptswin` klasörlerini paylaşıyorum.
-  - `ConfigureRemotingForAnsible.ps1` dosyasını uzaktan yüklüyorum.
-  - `install_qemu.ps1` ile:
-    - QEMU kuruluyor.
-    - Hyper-V, WSL, Sanallaştırma açılıyor.
-  - `download.ps1` ile OMV `.vmdk` dosyası indiriliyor.
-  - Ek olarak 10 GB `.vmdk` disk oluşturuluyor.
-  - Windows VM’e 16 GB RAM ve 4 CPU çekirdeği atadım.
-  - `lastden.qcow2` diskini Debian kurulumu için ekledim.
+- Static IP: `192.168.121.130`
+- Triggering custom shell scripts in the `Vagrantfile`:
+- Sharing the `/images` and `/libvirt/scriptswin` folders.
+- Remotely loading the `ConfigureRemotingForAnsible.ps1` file.
+- Using `install_qemu.ps1`:
+- Installing QEMU.
+- Enabling Hyper-V, WSL, and Virtualization.
+- Downloading the OMV `.vmdk` file with `download.ps1`.
+- Creating an additional 10 GB `.vmdk` disk.
+- Assigning 16 GB of RAM and 4 CPU cores to the Windows VM.
+- Adding the `lastden.qcow2` disk for the Debian installation.
 
-### 3. Ansible ile Windows Tarafını Otomatikleştiriyorum
+### 3. Automating the Windows Side with Ansible
 
-- `shrink_disk.yml`: 20 GB disk shrink edilip `D:` olarak `exFAT` biçiminde formatlanıyor.
-- `copy_disks.yml`: OMV disklerini `D:` sürücüsüne kopyalıyorum.
+- `shrink_disk.yml`: Shrinks the 20 GB disk and formats it as `D:` in `exFAT` format.
+- `copy_disks.yml`: Copys the OMV disks to the `D:` drive.
 - `start_vm.yml`:
-  - QEMU `.ps1` config dosyasını `C:/vagrant_vm_boot` klasörüne kaydettim.
-  - Bu scripti çalıştıran `.bat` dosyasını `Startup` klasörüne ekledim.
-  - OMV’ye 192.168.121.130:8080 üzerinden erişilebiliyor.
-- `close_windows.yml`: Windows VM’yi kapatıyorum.
-- Ardından 30 saniye bekliyorum.
+- Saved the QEMU `.ps1` config file to the `C:/vagrant_vm_boot` folder.
+- Added the `.bat` file that runs this script to the `Startup` folder.
+- OMV can be accessed via 192.168.121.130:8080.
+- `close_windows.yml`: Shuts down the Windows VM.
+- Then waits 30 seconds.
 
-### 4. Debian’ı Preseed ile Otomatik Kuruyorum
+### 4. Installing Debian Automatically with Preseed
 
-- Yeni terminalde `/preseed/auto_debian_install.sh` çalıştırılıyor.
-  - `preseed.cfg` HTTP ile 8000 portunda sunuluyor.
-  - `virsh` komutları ile VM kuruluyor.
-  - `extra-args` üzerinden statik IP veriliyor.
-- GRUB’un diğer işletim sistemlerini tanıması için `only_boot_debian=false` kullandım.
-- Debian kurulumu yaklaşık 30 dakika sürüyor.
-- Kurulum sonrası:
-  - Windows diski `vdb`, OMV diski `vdb2` olarak görülüyor.
-  - `/etc/fstab` içine mount girdisini ekledim.
+- Run `/preseed/auto_debian_install.sh` in a new terminal.
+- Serve `preseed.cfg` over HTTP on port 8000.
+- Install the VM using the `virsh` commands.
+- Set a static IP address via `extra-args`.
+- To enable GRUB to recognize other operating systems, I used the `only_debian=false` and `with_other_os boolean true` commands.
+- Installing Debian takes about 30 minutes.
+- After installation:
+- The Windows disk is seen as `vdb`, and the OMV disk is seen as `vdb2`.
+- Added the mount entry to `/etc/fstab`.
 
-### 5. Debian İçinde Otomasyonu Tamamlıyorum
+### 5. Completing the Automation in Debian
 
-- SSH erişimi açıldığında, debian kurulumun başarılı biçimde bittiğini anlıyorum ve script sırasıyla şu işlemleri yapıyor:
-  - `install_qemu_on_debian.yml` ile QEMU kuruluyor.
-  - `start_vm_when_reboot_debian.yml` ile systemd servisi kuruluyor.
-  - `change_vda.yml` ile disk yolu `vdb2` yerine `vda2` olacak şekilde fstab güncelleniyor.
-  - `shutdown_lin.yml` ile Debian VM’yi kapatıyorum.
+- When SSH access is enabled, I understand that the Debian installation has completed successfully, and the script performs the following steps in sequence:
+- QEMU is installed with `install_qemu_on_debian.yml`.
+- Systemd service is installed with `start_vm_when_reboot_debian.yml`, and I create the service that will start the QEMU virtual machine every time Debian restarts.
+- Fstab is updated with `change_vda.yml` so that the disk path is `vda2` instead of `vdb2`.
+- Shut down the Debian VM with `shutdown_lin.yml`.
 
-### 6. Son Adım: Geçici VM’yi Kaldırmak
+### 6. Final Step: Removing the Temporary VM
 
-- `virsh undefine debian-in-windows` komutuyla debian kurmak için tanımlanan geçici VM tanımını siliyoruz.
+- Delete the temporary VM definition defined for the Debian installation with the `virsh undefine debian-in-windows` command.
 
-## Sonuç
+## Result
 
-Artık elimizde dualboot çalışan bir sanal makine var:
+We now have a dual-boot virtual machine:
 
-- İster Windows ister Debian açayım,
-- OMV sanal makinesi her iki sistemde de otomatik başlıyor,
-- Windows için, Ağdaki başka bir cihazdan `http://192.168.121.130:8080` adresine girerek OMV’ye erişebiliyorum.
-- Debian için, Ağdaki başka bir cihazdan `http://192.168.121.145:8080` adresine girerek OMV’ye erişebiliyorum.
+- Whether we boot into Windows or Debian,
+- The OMV virtual machine starts automatically on both systems,
+- For Windows, I can access OMV by entering the address http://192.168.121.130:8080 from another device on the network.
+- For Debian, I can access OMV by entering the address http://192.168.121.145:8080 from another device on the network.
