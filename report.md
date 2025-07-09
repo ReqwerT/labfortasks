@@ -25,20 +25,21 @@ To run the system, we first need to download the files from github. Then our "li
 
 ```bash
 cd /libvirt
+chmod +x ./start_all.sh
 ./start_all.sh
 ```
 
 This script:
 - Checks vagrant, libvirt, and vagrant-libvirt plugin; installs if missing
-- Ensures 192.168.121.0/24 network exists
 - Starts Windows VM, runs provisioning:
   - Static IP 192.168.121.130
   - Pulls ConfigurationRemotingForAnsible.ps1
   - Runs install_qemu.ps1 (enables Hyper-V, installs QEMU)
   - Runs download.ps1 (installs Python, gdown, downloads disk.vmdk, creates disk1.vmdk)
-- Starts Ubuntu Ansible VM:
-  - Static IP 192.168.121.20
-  - Runs req.sh which executes the following playbooks:
+  - Close windows when finish all steps.
+- Starts Debian dualboot install:
+  - Static IP 192.168.121.145
+  - Runs /preseed/auto_debian_install.sh scripts:
 
 ### Ansible Playbooks
 
