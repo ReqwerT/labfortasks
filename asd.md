@@ -97,20 +97,21 @@ Eksik program varsa script bunları otomatik olarak yüklüyor.
 
 ### 5. Debian İçinde Otomasyonu Tamamlıyorum
 
-- SSH erişimi açıldığında şu işlemleri yapıyorum:
+- SSH erişimi açıldığında, debian kurulumun başarılı biçimde bittiğini anlıyorum ve script sırasıyla şu işlemleri yapıyor:
   - `install_qemu_on_debian.yml` ile QEMU kuruluyor.
   - `start_vm_when_reboot_debian.yml` ile systemd servisi kuruluyor.
   - `change_vda.yml` ile disk yolu `vdb2` yerine `vda2` olacak şekilde fstab güncelleniyor.
   - `shutdown_lin.yml` ile Debian VM’yi kapatıyorum.
 
-### 6. Son Adım: Geçici VM’yi Kaldırıyorum
+### 6. Son Adım: Geçici VM’yi Kaldırmak
 
-- `virsh undefine debian-in-windows` komutuyla geçici Debian VM tanımını sildim.
+- `virsh undefine debian-in-windows` komutuyla debian kurmak için tanımlanan geçici VM tanımını siliyoruz.
 
 ## Sonuç
 
-Artık elimde dualboot çalışan bir sanal makine var:
+Artık elimizde dualboot çalışan bir sanal makine var:
 
 - İster Windows ister Debian açayım,
 - OMV sanal makinesi her iki sistemde de otomatik başlıyor,
-- Ağdaki başka bir cihazdan `http://192.168.121.130:8080` adresine girerek OMV’ye erişebiliyorum.
+- Windows için, Ağdaki başka bir cihazdan `http://192.168.121.130:8080` adresine girerek OMV’ye erişebiliyorum.
+- Debian için, Ağdaki başka bir cihazdan `http://192.168.121.145:8080` adresine girerek OMV’ye erişebiliyorum.
