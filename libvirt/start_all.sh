@@ -7,15 +7,42 @@ HOSTS="$SCRIPTS/hosts.ini"
 PRESEED_SCRIPT="$BASE_DIR/preseed/auto_debian_install.sh"
 TARGET_IP="192.168.121.145"
 
-echo "Installing Ansible..."
-if ! command -v ansible-playbook &>/dev/null; then
-  sudo apt-get update -qq
-  sudo apt-get install -y ansible python3-pip
-  ansible-galaxy collection install community.libvirt
-  sudo apt install -y sshpass
+echo -n "Checking Ansible: "
+if command -v ansible-playbook &>/dev/null; then
+    echo "Found → $(ansible --version | head -n1)"
+else
+    echo "Not found. Installing Ansible..."
+    sudo apt-get update -qq
+    sudo apt-get install -y ansible python3-pip
+    ansible-galaxy collection install community.libvirt
+    sudo apt install -y sshpass
+    echo "Ansible installed → $(ansible --version | head -n1)"
 fi
-echo "Ansible ready."
 
+echo -n "Checking Vagrant: "
+if command -v vagrant &>/dev/null; then
+    echo "Found → $(vagrant --version)"
+else
+    echo "Not found. Installing Vagrant..."
+    sudo apt-get install -y curl gnupg2 software-properties-common
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+        | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt-get update -qq
+    sudo apt-get install -y vagrant
+    echo "Vagrant installed → $(vagrant --version)"
+fi
+
+echo -n "Checking Libvirt: "
+if command -v virsh &>/dev/null; then
+    echo "Found → $(virsh --version)"
+else
+    echo "Not found. Installing Libvirt..."
+    sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virtinst libvirt-dev virt-manager
+    sudo usermod -aG libvirt "$USER"
+    sudo systemctl enable --now libvirtd
+    echo "Libvirt installed → $(virsh --version)"
+fi
 
 echo "1-) Starting winvm..."
 vagrant up winvm --provider=libvirt
