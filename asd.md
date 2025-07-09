@@ -24,7 +24,7 @@ This system only requires the following three applications:
 
 - Vagrant 2.4.7
 - libvirt 9.0.0
-- Ansible 2.4.18
+- Ansible 2.14.18
 
 > **Note:** I performed the entire process on a bare-metal Debian 12 system.
 
@@ -36,7 +36,7 @@ I initially tried using a sidecar Ansible virtual machine, but because it create
 
 ```bash
 # 1. Download the project to your system
-git clone <repo-link>
+git clone https://github.com/ReqwerT/labfortasks/
 cd labfortasks/libvirt/
 
 # 2. Give execution permission to the startup script
