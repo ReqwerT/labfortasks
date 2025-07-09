@@ -18,7 +18,6 @@ else
     sudo apt install -y sshpass
     echo "Ansible installed → $(ansible --version | head -n1)"
 fi
-
 echo -n "Checking Vagrant: "
 if command -v vagrant &>/dev/null; then
     echo "Found → $(vagrant --version)"
@@ -43,6 +42,18 @@ else
     sudo systemctl enable --now libvirtd
     echo "Libvirt installed → $(virsh --version)"
 fi
+
+echo -n "Checking vagrant-libvirt plugin: "
+if vagrant plugin list | grep -q 'vagrant-libvirt'; then
+    version=$(vagrant plugin list | grep 'vagrant-libvirt' | awk '{print $2}')
+    echo "Found → vagrant-libvirt ${version}"
+else
+    echo "Not found. Installing vagrant-libvirt plugin..."
+    sudo apt-get install -y libxslt-dev libxml2-dev libvirt-dev zlib1g-dev ruby-dev
+    vagrant plugin install vagrant-libvirt
+    echo "vagrant-libvirt plugin installed → $(vagrant plugin list | grep 'vagrant-libvirt')"
+fi
+
 
 echo "1-) Starting winvm..."
 vagrant up winvm --provider=libvirt
