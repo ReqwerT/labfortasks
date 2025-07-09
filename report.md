@@ -46,11 +46,9 @@ This script:
 - `copy_disks.yml`: Copies OMV disks (disk.vmdk, disk1.vmdk) to `D:` drive.
 - `start_vm.yml`: Creates QEMU boot scripts for OMV, enables startup with Windows using WHPX accel, 4GB RAM, 2 disks, and port forwarding.
 - `close_windows.yml`: Shuts down Windows VM to release resources.
-- `install_qemu.yml`: Installs QEMU in Debian virtual machine.
+- `install_qemu_on_debian.yml`: Installs QEMU in Debian virtual machine.
 - `start_vm_when_reboot_debian.yml`: Configures OMV disk in `/etc/fstab`, sets up `qemu-vm.service` for nested VM autostart on every reboot (ports 8080, 8443, 2222).
 - `change_vda.yml`: Fixes `/etc/fstab` to use `vda` instead of `vdb` for proper boot.
-- `delete_enp1s0.yml`: Deletes old static IPs, assigns 192.168.121.145 to `enp8s0`, and shuts down Debian VM.
-- `enable_dualboot_on_baremetal.yml`: Sets 2nd disk as bootable, enables VM boot menu (Debian or Windows), redefines VM config.
 
 ---  
 
