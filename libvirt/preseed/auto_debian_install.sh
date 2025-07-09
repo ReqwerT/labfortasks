@@ -81,4 +81,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo ">>> Debian installation completed and VM shut down."
-echo ">>> Disks preserved, operation completed successfully ✅"
+echo ">>> Disks preserved, operation completed successfully"
