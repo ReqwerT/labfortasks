@@ -67,7 +67,7 @@ virt-install \
   auto=true priority=critical interface=auto
   netcfg/disable_autoconfig=true
   netcfg/use_autoconfig=false
-  netcfg/get_ipaddress=192.168.121.145
+  netcfg/get_ipaddress=192.168.121.10
   netcfg/get_netmask=255.255.255.0
   netcfg/get_gateway=192.168.121.1
   netcfg/get_nameservers=8.8.8.8
