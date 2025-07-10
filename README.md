@@ -60,7 +60,7 @@ If any programs are missing, the script automatically installs them.
 
 ### 2. Starting the `winvm` Virtual Machine
 
-- Static IP: `192.168.121.130`
+- Static IP: `192.168.121.10`
 - Triggering custom shell scripts in the `Vagrantfile`:
 - Sharing the `/images` and `/libvirt/scriptswin` folders.
 - Remotely loading the `ConfigureRemotingForAnsible.ps1` file.
@@ -79,7 +79,7 @@ If any programs are missing, the script automatically installs them.
 - `start_vm.yml`:
 - Saved the QEMU `.ps1` config file to the `C:/vagrant_vm_boot` folder.
 - Added the `.bat` file that runs this script to the `Startup` folder.
-- OMV can be accessed via 192.168.121.130:8080.
+- OMV can be accessed via 192.168.121.10:8080.
 - `close_windows.yml`: Shuts down the Windows VM.
 - Then waits 30 seconds.
 
@@ -113,7 +113,7 @@ We now have a dual-boot virtual machine:
 
 - Whether we boot into Windows or Debian,
 - The OMV virtual machine starts automatically on both systems,
-- For Windows, I can access OMV by entering the address http://192.168.121.130:8080 from another device on the network.
-- For Debian, I can access OMV by entering the address http://192.168.121.145:8080 from another device on the network.
+- For Windows, I can access OMV by entering the address http://192.168.121.10:8080 from another device on the network.
+- For Debian, I can access OMV by entering the address http://192.168.121.10:8080 from another device on the network.
 
 If you want to read all report files, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
