@@ -32,13 +32,13 @@ chmod +x ./start_all.sh
 This script:
 - Checks vagrant, libvirt, and vagrant-libvirt plugin; installs if missing
 - Starts Windows VM, runs provisioning:
-  - Static IP 192.168.121.130
+  - Static IP 192.168.121.10
   - Pulls ConfigurationRemotingForAnsible.ps1
   - Runs install_qemu.ps1 (enables Hyper-V, installs QEMU)
   - Runs download.ps1 (installs Python, gdown, downloads disk.vmdk, creates disk1.vmdk)
   - Close windows when finish all steps.
 - Starts Debian dualboot install:
-  - Static IP 192.168.121.145
+  - Static IP 192.168.121.10
   - Runs /preseed/auto_debian_install.sh scripts:
 
 ### Ansible Playbooks
