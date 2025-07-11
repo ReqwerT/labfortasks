@@ -37,6 +37,7 @@ I initially tried using a sidecar Ansible virtual machine, but because it create
 ```bash
 # 1. Download the project to your system
 git clone https://github.com/ReqwerT/labfortasks/
+
 cd labfortasks/libvirt/
 
 # 2. Run as ROOT
