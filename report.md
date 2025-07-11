@@ -82,7 +82,7 @@ This script:
 
 ### OMV Disk and Repo
 - [OMV Disk Download](https://drive.google.com/file/d/1Xf_O8pprBlkvgMcjBodDnoYdFOh6JFC9/view?usp=sharing)
- - `disk1.vmdk SHA256`:7f47710747af62be50a926959e430eef17386d3c9b9d600bbec513de74c329ed   
+    - `disk.vmdk SHA256`:7f47710747af62be50a926959e430eef17386d3c9b9d600bbec513de74c329ed   
 - [GitHub Repo](https://github.com/ReqwerT/labfortasks/tree/main)
 
 ---
