@@ -53,6 +53,15 @@ This script:
 
 ---  
 
+### Script Files
+
+- `start_all.sh`: A script file located in the libvirt root directory automatically executes all operations sequentially. After downloading the project, simply grant it run permissions and run ./start_all.sh. It will automatically handle the rest for you.
+- `/preseed/auto_debian_install.sh`: This script creates a virtual machine named debian-in-windows by serving the preseed file located in the same folder. This virtual machine uses the lastden.qcow2 disk created with Vagrant as the primary disk and the winvm machine's main disk as the secondary disk. It automatically installs Debian on the entire lastden.qcow2 disk with preseed and assigns the IP address 192.168.121.10 to the virtual machine using the extra-args command. The second disk is used to identify the Windows bootloader as part of Grub. This allows GRUB to detect not only Debian but also the Windows operating system.
+- `change_boot.sh`: This script, once all processes are complete, changes the boot order within our virtual machine. The second installed disk is set as bootable and selected as the first disk. This allows GRUB to launch when the virtual machine boots, giving us a choice. You can choose either Windows or Debian to access the OMV virtual machine.
+
+---  
+
+
 ## System Access Table
 
 | Machine          | Username        | Password         | Virt Level | IP Address       |
