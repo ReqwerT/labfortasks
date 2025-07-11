@@ -7,6 +7,9 @@ HOSTS="$SCRIPTS/hosts.ini"
 PRESEED_SCRIPT="$BASE_DIR/preseed/auto_debian_install.sh"
 TARGET_IP="192.168.121.145"
 
+chmod +x ./preseed/auto_debian_install.sh
+
+
 echo -n "Checking Ansible: "
 if command -v ansible-playbook &>/dev/null; then
     echo "Found → $(ansible --version | head -n1)"
