@@ -25,7 +25,6 @@ To run the system, we first need to download the files from github. Then our "li
 
 ```bash
 cd /libvirt
-chmod +x ./start_all.sh
 ./start_all.sh
 ```
 
