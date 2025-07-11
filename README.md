@@ -39,10 +39,7 @@ I initially tried using a sidecar Ansible virtual machine, but because it create
 git clone https://github.com/ReqwerT/labfortasks/
 cd labfortasks/libvirt/
 
-# 2. Give execution permission to the startup script
-chmod +x start_all.sh
-
-# 3. Run as ROOT
+# 2. Run as ROOT
 sudo ./start_all.sh
 ```
 
