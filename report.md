@@ -59,7 +59,7 @@ This script:
 |------------------|------------------|------------------|------------|------------------|
 | Windows          | vagrant          | vagrant          | 1          | 192.168.121.10  |
 | Debian Dualboot  | user / root      | userpass / rootpass | 1       | 192.168.121.10  |
-| OMV (nested)     | root / admin     | 1647 / sanbox    | 2          | Host VM's IP with port 8080  |
+| OMV (nested)     | root / admin     | 1647 / sanbox    | 2          | 192.168.121.10:8080  |
 
 **Virt Level 1** = regular VM — **Virt Level 2** = nested (OMV inside Debian/Windows)
 
