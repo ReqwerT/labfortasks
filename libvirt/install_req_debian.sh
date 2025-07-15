@@ -12,6 +12,7 @@ else
     sudo apt-get install -y ansible python3-pip
     ansible-galaxy collection install community.libvirt
     sudo apt install -y sshpass
+    sudo apt-get install -y xmlstarlet
     echo "Ansible installed → $(ansible --version | head -n1)"
 fi
 echo -n "Checking Vagrant: "
