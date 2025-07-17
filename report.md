@@ -65,9 +65,9 @@ This script:
 
 | Machine          | Username        | Password         | Virt Level | IP Address       |
 |------------------|------------------|------------------|------------|------------------|
-| Windows          | vagrant          | vagrant          | 1          | 192.168.121.10  |
-| Debian Dualboot  | user / root      | userpass / rootpass | 1       | 192.168.121.10  |
-| OMV (nested)     | root / admin     | 1647 / sanbox    | 2          | 192.168.121.10:8080  |
+| Windows          | vagrant          | vagrant          | 1          | {your_default_network}.10  |
+| Debian Dualboot  | user / root      | userpass / rootpass | 1       | {your_default_network}.10 |
+| OMV (nested)     | root / admin     | 1647 / sanbox    | 2          | {your_default_network}.10 :8080  |
 
 **Virt Level 1** = regular VM — **Virt Level 2** = nested (OMV inside Debian/Windows)
 
