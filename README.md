@@ -23,15 +23,16 @@ Using Ansible within the virtual machines I created with Vagrant, I:
 
 This system only requires the following three applications:
 
-- Vagrant 2.4.7
-- libvirt 9.0.0
-- Ansible 2.14.18
+- `Vagrant 2.4.7`: Our system uses two virtual machine configurations within a single Vagrantfile. I configured all steps using triggers to be executed with the vagrant up command. To run this lab environment smoothly, you must have Vagrant installed on your computer.
+- `libvirt 9.0.0`: The virtual machines and provider I selected as providers are compatible with libvirt. You must have libvirt installed on your computer.
+- `Vagrant-libvirt plugin 0.11.2`: In order for Vagrant to recognize libvirt on our system, the Vagrant libvirt plugin must be installed.
+- `xmlstarlet`: At the end of all operations, xmlstartlet should be installed on our system, so that the installed Debian operating system is marked as bootable and set as the first disk.
 
 > **Note:** I performed the entire process on a bare-metal Debian 12 system.
 
 ## Sidecar Note
 
-I initially tried using a sidecar Ansible virtual machine, but because it created additional complexity and occasionally crashed the system, I continued with Ansible directly on the host machine. I can also re-integrate the sidecar structure if desired.
+For our Ansible machine, I used the Sidecar Ubuntu virtual machine. This machine's IP address is the dot.20 IP address of the libvirt default network on our system.
 
 ## System Initialization
 
@@ -42,22 +43,29 @@ git clone https://github.com/ReqwerT/labfortasks/
 cd labfortasks/libvirt/
 
 # 2. Run as ROOT
-sudo ./start_all.sh
+vagrant up
 ```
 
-This script performs the following operations:
+This Vagrantfile performs the following operations:
 
-- Checks requirements and installs them if they are missing.
-- Starts virtual machines.
-- Runs Ansible playbooks.
+- Fetch default network information for libvirt
+- Sets the IP address of the Windows virtual machine to dot.10 and the IP address of the Ansible Ubuntu virtual machine to dot.20
+- After `vagrant up`, I observed that when we perform `vagrant destroy`, it deletes the default network information. I prevented this from happening by adding a trigger before `vagrant up`. It prevents the default network from being deleted with `chattr +i`. I'll add more information to the errors table.
+- Using the `autostart: false` parameter, I prevented the Windows VM from automatically starting with `vagrant up`. Instead, I used `ubuntu.trigger.before:up` to start the Windows VM with the `vagrant up winvm` command before Ubuntu. This prevented my two VMs from starting simultaneously. My Windows VM would run first and perform the necessary operations, followed by my Ansible VM.
+- Using the win.vm.provision command, I first pulled and ran the ConfigureRemotingForAnsible.ps1 file from GitHub so my Windows machine could be managed with Ansible. Then, using the win.vm.provision command, I ran the install_qemu.ps1 file I shared with Windows. With this file, I installed qemu on my Windows machine. Finally, using the win.vm.provision structure, I ran the download.ps1 file I shared with Windows. This file allowed me to download my OMV virtual machine from the internet. Because the virtual machine was large, I couldn't share it directly to GitHub. The hash values are available later in the article. After these steps, my Windows virtual machine is now ready.
+- Once my Windows machine was ready, I added the win_ip value from the Vagrantfile to the hosts.ini file, along with another trigger, ubuntu.trigger.before :up. This way, the IP address I'd set to dot.10 from the default network for managing virtual machines with Ansible was written into the ini file before I even started.
+- While preparing my Ubuntu virtual machine, I installed some software. These include:
+  - `Ansible`: For remote management of Windows and Debian virtual machines
+  - `sshpass`: Since I provide a password-based connection for Ansible, this needs to be installed.
+
+
+
+
+
 
 ## System Operation
 
-### 1. Requirement Check
-
-If any programs are missing, the script automatically installs them.
-
-### 2. Starting the `winvm` Virtual Machine
+### 1. Starting the `winvm` Virtual Machine
 
 - Static IP: `192.168.121.10`
 - Triggering custom shell scripts in the `Vagrantfile`:
@@ -71,7 +79,7 @@ If any programs are missing, the script automatically installs them.
 - Assigning 16 GB of RAM and 4 CPU cores to the Windows VM.
 - Adding the `lastden.qcow2` disk for the Debian installation.
 
-### 3. Automating the Windows Side with Ansible
+### 2. Automating the Windows Side with Ansible
 
 - `shrink_disk.yml`: Shrinks the 20 GB disk and formats it as `D:` in `exFAT` format.
 - `copy_disks.yml`: Copys the OMV disks to the `D:` drive.
@@ -82,7 +90,7 @@ If any programs are missing, the script automatically installs them.
 - `close_windows.yml`: Shuts down the Windows VM.
 - Then waits 30 seconds.
 
-### 4. Installing Debian Automatically with Preseed
+### 3. Installing Debian Automatically with Preseed
 
 - Run `/preseed/auto_debian_install.sh` in a new terminal.
 - Serve `preseed.cfg` over HTTP on port 8000.
@@ -94,7 +102,7 @@ If any programs are missing, the script automatically installs them.
 - The Windows disk is seen as `vdb`, and the OMV disk is seen as `vdb2`.
 - Added the mount entry to `/etc/fstab`.
 
-### 5. Completing the Automation in Debian
+### 4. Completing the Automation in Debian
 
 - When SSH access is enabled, I understand that the Debian installation has completed successfully, and the script performs the following steps in sequence:
 - QEMU is installed with `install_qemu_on_debian.yml`.
@@ -102,7 +110,7 @@ If any programs are missing, the script automatically installs them.
 - Fstab is updated with `change_vda.yml` so that the disk path is `vda2` instead of `vdb2`.
 - Shut down the Debian VM with `shutdown_lin.yml`.
 
-### 6. Final Step: Removing the Temporary VM
+### 5. Final Step: Removing the Temporary VM
 
 - Delete the temporary VM definition defined for the Debian installation with the `virsh undefine debian-in-windows` command.
 
