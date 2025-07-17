@@ -46,6 +46,8 @@ cd labfortasks/libvirt/
 vagrant up
 ```
 
+## System Operation
+
 This Vagrantfile performs the following operations:
 
 - Fetch default network information for libvirt
@@ -57,62 +59,20 @@ This Vagrantfile performs the following operations:
 - While preparing my Ubuntu virtual machine, I installed some software. These include:
   - `Ansible`: For remote management of Windows and Debian virtual machines
   - `sshpass`: Since I provide a password-based connection for Ansible, this needs to be installed.
-
-
-
-
-
-
-## System Operation
-
-### 1. Starting the `winvm` Virtual Machine
-
-- Static IP: `192.168.121.10`
-- Triggering custom shell scripts in the `Vagrantfile`:
-- Sharing the `/images` and `/libvirt/scriptswin` folders.
-- Remotely loading the `ConfigureRemotingForAnsible.ps1` file.
-- Using `install_qemu.ps1`:
-- Installing QEMU.
-- Enabling Hyper-V, WSL, and Virtualization.
-- Downloading the OMV `.vmdk` file with `download.ps1`.
-- Creating an additional 10 GB `.vmdk` disk.
-- Assigning 16 GB of RAM and 4 CPU cores to the Windows VM.
-- Adding the `lastden.qcow2` disk for the Debian installation.
-
-### 2. Automating the Windows Side with Ansible
-
-- `shrink_disk.yml`: Shrinks the 20 GB disk and formats it as `D:` in `exFAT` format.
-- `copy_disks.yml`: Copys the OMV disks to the `D:` drive.
-- `start_vm.yml`:
-- Saved the QEMU `.ps1` config file to the `C:/vagrant_vm_boot` folder.
-- Added the `.bat` file that runs this script to the `Startup` folder.
-- OMV can be accessed via 192.168.121.10:8080.
-- `close_windows.yml`: Shuts down the Windows VM.
-- Then waits 30 seconds.
-
-### 3. Installing Debian Automatically with Preseed
-
-- Run `/preseed/auto_debian_install.sh` in a new terminal.
-- Serve `preseed.cfg` over HTTP on port 8000.
-- Install the VM using the `virsh` commands.
-- Set a static IP address via `extra-args`.
-- To enable GRUB to recognize other operating systems, I used the `only_debian=false` and `with_other_os boolean true` commands.
-- Installing Debian takes about 30 minutes.
-- After installation:
-- The Windows disk is seen as `vdb`, and the OMV disk is seen as `vdb2`.
-- Added the mount entry to `/etc/fstab`.
-
-### 4. Completing the Automation in Debian
-
-- When SSH access is enabled, I understand that the Debian installation has completed successfully, and the script performs the following steps in sequence:
-- QEMU is installed with `install_qemu_on_debian.yml`.
-- Systemd service is installed with `start_vm_when_reboot_debian.yml`, and I create the service that will start the QEMU virtual machine every time Debian restarts.
-- Fstab is updated with `change_vda.yml` so that the disk path is `vda2` instead of `vdb2`.
-- Shut down the Debian VM with `shutdown_lin.yml`.
-
-### 5. Final Step: Removing the Temporary VM
-
-- Delete the temporary VM definition defined for the Debian installation with the `virsh undefine debian-in-windows` command.
+- Using the ubuntu.trigger.after :up trigger, I ran some commands after my Ubuntu virtual machine was ready. These operations are:
+  - `shrink_disk.yml`: Shrinks 20GB of disk space for OMV in our Windows virtual machine. Then, it formats this space in exFAT so that both Linux and Windows can read it.
+  - `copy_disks.yml`: Copies the downloaded OMV disk and the 10GB of extra space we created to the D: drive we created.
+  - `start_vm.yml`: Creates a ps1 script to automatically start our OMV virtual machine. This script creates a bat file in the startup folder to run it on every reboot. This way, whenever our Windows virtual machine restarts, our OMV virtual machine automatically starts up.
+- And after these operations, we shut down our Windows machine with a new trigger using the vagrant halt winvm command.
+- Using another trigger, we will automatically install Debian by running our preseed file on the lastden.qcow2 25GB disk that we added to our virtual machine;
+  - By running the `auto_debian_install.sh` file, we first retrieve the libvirt default network information and assign the dot.10 IP address to this operating system using extra-args. We publish the preseed file, located in the same folder, to port 8000 (if this port is occupied, it automatically serves on port 8080). Next, we perform an access test on our preseed file. Once the access is successful, we use our prseed file to automatically obtain the dot.10 IP address and install the Debian operating system on our disk.
+- After this process, the system enters a 60-second pause. Immediately afterward, the following playbooks are run to perform operations on our Debian virtual machine:
+  - `install_qemu_on_debian.yml`: Installs qemu into Debian.
+  - `start_vm_when_reboot_debian.yml`: Using this file, I created a service to access and start the OMV virtual machine every time Debian boots.
+  - `change_vda.yml`: Using this file, we created a new virtual machine for Debian, and our primary disk in this virtual machine was our lastden.qcow2 disk (vda). Our OMV disk appeared as vdb2 within this virtual machine. However, in our actual virtual machine, our lastden.qcow2 disk is vdb2. In this case, our OMV disk will be in vda2. After all these operations, I use this playbook to change the mounted disk, set to vdb2, to vda2 in /etc/fstab. -shutdown_lin.yml: after all operations I shut down my debian machine.
+- After all these steps are completed, we now have a dual-boot virtual machine. Whether you run Windows or Debian, our OMV virtual machine will boot in either configuration. Finally, we have two remaining steps. We'll undefine the Debian-in-Windows virtual machine we created, and with the change_boot.sh script, we'll make our lastden.qcow2 disk the first disk and make it bootable.
+  - We undefine our Debian-in-Windows virtual machine using the virsh undefine debian-in-Windows --nvram command.
+  - With the change_boot.sh script, using xmlstarlet, we change the boot order, mark our second disk as bootable, and activate the boot menu.
 
 ## Result
 
@@ -120,7 +80,7 @@ We now have a dual-boot virtual machine:
 
 - Whether we boot into Windows or Debian,
 - The OMV virtual machine starts automatically on both systems,
-- For Windows, I can access OMV by entering the address http://192.168.121.10:8080 from another device on the network.
-- For Debian, I can access OMV by entering the address http://192.168.121.10:8080 from another device on the network.
+- For Windows, I can access OMV by entering the address http://{your_default_network}.10:8080 from another device on the network.
+- For Debian, I can access OMV by entering the address http://{your_default_network}.10:8080 from another device on the network.
 
 If you want to read all report files, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
