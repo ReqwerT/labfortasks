@@ -84,3 +84,4 @@ We now have a dual-boot virtual machine:
 - For Debian, I can access OMV by entering the address http://{your_default_network}.10:8080 from another device on the network.
 
 If you want to read all report files, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
+If you want to see error tables, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
