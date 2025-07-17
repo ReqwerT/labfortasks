@@ -24,6 +24,7 @@ Using Ansible within the virtual machines I created with Vagrant, I:
 This system only requires the following three applications:
 
 - `Vagrant 2.4.7`: Our system uses two virtual machine configurations within a single Vagrantfile. I configured all steps using triggers to be executed with the vagrant up command. To run this lab environment smoothly, you must have Vagrant installed on your computer.
+- `rsync`: Rsync must be installed for file shares
 - `libvirt 9.0.0`: The virtual machines and provider I selected as providers are compatible with libvirt. You must have libvirt installed on your computer.
 - `Vagrant-libvirt plugin 0.11.2`: In order for Vagrant to recognize libvirt on our system, the Vagrant libvirt plugin must be installed.
 - `xmlstarlet`: At the end of all operations, xmlstartlet should be installed on our system, so that the installed Debian operating system is marked as bootable and set as the first disk.
