@@ -71,20 +71,6 @@ Vagrant.configure("2") do |config|
     SHELL
 	
 
-	    
-     ubuntu.trigger.before :up do |trigger|
-	  trigger.name = "Securing the Libvirt default network"
-	  trigger.run = {
-	    inline: <<-SHELL
-	      echo " Making /etc/libvirt/qemu/networks/default.xml file unmodifiable"
-	      if [ -f /etc/libvirt/qemu/networks/default.xml ]; then
-	        sudo chattr +i /etc/libvirt/qemu/networks/default.xml
-	      fi
-	    SHELL
-	  }
-	end
-
-
       ubuntu.trigger.before :up do |trigger|
 	  trigger.name = "Writing win_ip address to hosts.ini file"
 	  trigger.run = {
