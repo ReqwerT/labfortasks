@@ -6,6 +6,7 @@ Using Ansible within the virtual machines I created with Vagrant, I:
 
 - Created a system configured for automatic dual boot,
 - Provided automatic access to the OMV virtual machine via shared disks, regardless of the operating system booted, and ensured that the OMV VM automatically starts at every startup.
+- All of this can be done in about an hour with just the `vagrant up` command.
 
 ## Steps I Performed
 
