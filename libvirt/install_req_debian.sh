@@ -3,18 +3,26 @@ set -euo pipefail
 
 BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo -n "Checking Ansible: "
-if command -v ansible-playbook &>/dev/null; then
-    echo "Found → $(ansible --version | head -n1)"
+echo -n "Checking xmlstarlet: "
+if command -v xmlstarlet &>/dev/null; then
+    echo "Found → $(xmlstarlet --version | head -n1)"
 else
-    echo "Not found. Installing Ansible..."
+    echo "Not found. Installing xmlstarlet..."
     sudo apt-get update -qq
-    sudo apt-get install -y ansible python3-pip
-    ansible-galaxy collection install community.libvirt
-    sudo apt install -y sshpass
     sudo apt-get install -y xmlstarlet
-    echo "Ansible installed → $(ansible --version | head -n1)"
+    echo "xmlstarlet installed → $(xmlstarlet --version | head -n1)"
 fi
+
+echo -n "Checking rsync: "
+if command -v rsync &>/dev/null; then
+    echo "Found → $(rsync --version | head -n1)"
+else
+    echo "Not found. Installing rsync..."
+    sudo apt-get update -qq
+    sudo apt-get install -y rsync
+    echo "rsync installed → $(rsync --version | head -n1)"
+fi
+
 echo -n "Checking Vagrant: "
 if command -v vagrant &>/dev/null; then
     echo "Found → $(vagrant --version)"
@@ -50,4 +58,3 @@ else
     vagrant plugin install vagrant-libvirt
     echo "vagrant-libvirt plugin installed → $(vagrant plugin list | grep 'vagrant-libvirt')"
 fi
-
