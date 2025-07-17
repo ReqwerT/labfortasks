@@ -83,6 +83,7 @@ This command:
     - `disk.vmdk SHA256`: 7f47710747af62be50a926959e430eef17386d3c9b9d600bbec513de74c329ed
     - `disk.vmdk SHA512`: 6b8d45fc3a24f85a5ed132e231fd24e6ed36c3ab75260fda98bc5ab5a190cc321f0db73d7d5114ff6e8c0b7ac612ea8389474b3c447ce1b5588bcdaf7a9c569f
 - [GitHub Repo](https://github.com/ReqwerT/labfortasks/tree/main)
+- [Error Table](https://github.com/ReqwerT/labfortasks/blob/main/errors.md)
 
 ---
 
