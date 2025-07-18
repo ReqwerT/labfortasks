@@ -21,7 +21,7 @@
 
 ## Operating the System and Its Functioning
 
-To run the system, we first need to download the files from github. Then our "libvirt/start_all.sh" script will start the entire system.
+To run the system, we first need to download the files from github. We should go to the libvirt folder with the terminal and type `vagrant up` as `root`.
 
 ```bash
 cd /libvirt
