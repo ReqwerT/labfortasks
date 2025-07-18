@@ -54,6 +54,7 @@ if vagrant plugin list | grep -q 'vagrant-libvirt'; then
     echo "Found → vagrant-libvirt ${version}"
 else
     echo "Not found. Installing vagrant-libvirt plugin..."
+    sudo apt install -y make gcc
     vagrant plugin install vagrant-libvirt
     echo "vagrant-libvirt plugin installed → $(vagrant plugin list | grep 'vagrant-libvirt')"
 fi
