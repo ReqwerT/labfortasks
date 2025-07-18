@@ -23,7 +23,7 @@ Using Ansible within the virtual machines I created with Vagrant, I:
 
 This system only requires the following three applications:
 
-- `virtualization support`: Your computer must support virtualization and have virtual-within-virtual capabilities, which must be enabled in the BIOS. AMD processors have AMD-V, and Intel processors have VT-x. In bare-metal Linux, you can determine whether virtualization is enabled by typing the command `egrep -c '(vmx|svm)' /proc/cpuinfo` into a terminal. If the output is greater than `0`, virtualization is enabled on your computer. If it is `0`, virtualization support is not available or has not yet been activated.
+- `Virtualization Support`: Your computer must support virtualization and have virtual-within-virtual capabilities, which must be enabled in the BIOS. AMD processors have AMD-V, and Intel processors have VT-x. In bare-metal Linux, you can determine whether virtualization is enabled by typing the command `egrep -c '(vmx|svm)' /proc/cpuinfo` into a terminal. If the output is greater than `0`, virtualization is enabled on your computer. If it is `0`, virtualization support is not available or has not yet been activated.
 - `Vagrant 2.4.7`: Our system uses two virtual machine configurations within a single Vagrantfile. I configured all steps using triggers to be executed with the vagrant up command. To run this lab environment smoothly, you must have Vagrant installed on your computer.
 - `rsync`: Rsync must be installed for file shares
 - `libvirt 9.0.0`: The virtual machines and provider I selected as providers are compatible with libvirt. You must have libvirt installed on your computer.
