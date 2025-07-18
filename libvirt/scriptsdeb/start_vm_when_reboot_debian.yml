@@ -40,7 +40,7 @@
         # Start QEMU
         /usr/bin/qemu-system-x86_64 \
           -name auto-vm \
-          -m 2048 \
+          -m 4096 \
           -smp 2 \
           -drive file={{ mount_point }}/disk.vmdk,format=vmdk,if=virtio \
           -drive file={{ mount_point }}/disk1.vmdk,format=vmdk,if=virtio \
