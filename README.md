@@ -30,7 +30,54 @@ This system only requires the following three applications:
 - `Vagrant-libvirt plugin 0.11.2`: In order for Vagrant to recognize libvirt on our system, the Vagrant libvirt plugin must be installed.
 - `xmlstarlet`: At the end of all operations, xmlstartlet should be installed on our system, so that the installed Debian operating system is marked as bootable and set as the first disk.
 
+
+> If you want to install all the requirements manually, run the following command in a root terminal. If you don't want to install manually, run the install_req_debian.sh file with root permissions. This file checks all for the Debian  requirements and installs them if they're missing.
+  
+  ```bash
+  sudo apt update && sudo apt install -y \
+    cpu-checker \
+    rsync \
+    libvirt-daemon-system \
+    libvirt-clients \
+    qemu-kvm \
+    ruby-dev \
+    xmlstarlet \
+    egrep \
+    dnsmasq \
+    libxslt-dev \
+    libxml2-dev \
+    zlib1g-dev \
+    libguestfs-tools \
+    gcc \
+    qemu-utils \
+    make \
+    vagrant
+  
+  # Install the specific version of the vagrant-libvirt plugin
+  vagrant plugin install vagrant-libvirt --plugin-version 0.11.2
+  
+  # Enable and start libvirtd service
+  sudo systemctl enable --now libvirtd
+  
+  # Add your user to the libvirt group for permission access
+  sudo usermod -aG libvirt $(whoami)
+  
+  # Check virtualization support (should return a number > 0)
+  egrep -c '(vmx|svm)' /proc/cpuinfo
+  ```
+  
+
+
+
+
+
+
 > **Note:** I performed the entire process on a bare-metal Debian 12 system.
+
+
+
+
+
 
 ## Sidecar Note
 
