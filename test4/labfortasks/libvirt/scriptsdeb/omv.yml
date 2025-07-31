@@ -1,0 +1,67 @@
+---
+- name: Install OpenMediaVault on Debian
+  hosts: omv
+  become: yes
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
+  vars:
+    omv_key_url: https://packages.openmediavault.org/public/archive.key
+    omv_keyring: /usr/share/keyrings/openmediavault-archive-keyring.gpg
+    omv_repo: >-
+      deb [signed-by={{ omv_keyring }}]
+      https://packages.openmediavault.org/public
+      sandworm main
+
+  tasks:
+    - name: Ensure apt cache is up to date
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - gnupg
+          - wget
+          - ca-certificates
+        state: present
+
+    - name: Download OMV archive key
+      get_url:
+        url: "{{ omv_key_url }}"
+        dest: /tmp/omv-archive.key
+        mode: '0644'
+
+    - name: Convert archive key to GPG keyring
+      command: >
+        gpg --dearmor --yes
+        --output {{ omv_keyring }}
+        /tmp/omv-archive.key
+      args:
+        creates: "{{ omv_keyring }}"
+
+    - name: Add OpenMediaVault APT repository
+      copy:
+        dest: /etc/apt/sources.list.d/openmediavault.list
+        content: "{{ omv_repo }}\n"
+
+    - name: Update apt cache
+      apt:
+         update_cache: yes
+
+
+    - name: Install OpenMediaVault meta‑package
+      apt:
+        name: openmediavault
+        state: present
+        update_cache: yes
+        install_recommends: no
+
+    - name: Populate the OMV configuration database
+      command: omv-confdbadm populate
+      args:
+        creates: /etc/openmediavault/config.xml
+
+    - name: Deploy network configuration via systemd-networkd
+      command: omv-salt deploy run systemd-networkd
