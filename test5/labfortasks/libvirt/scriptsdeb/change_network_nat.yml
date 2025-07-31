@@ -1,0 +1,20 @@
+---
+- name: Configure loopback and enable DHCP on OMV
+  hosts: omv
+  become: yes
+  tasks:
+    - name: Write /etc/network/interfaces
+      copy:
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          auto lo
+          iface lo inet loopback
+
+          post-up /sbin/dhclient || true
+
+    - name: Restart loopback interface with ifdown/ifup
+      command: >
+        bash -c "systemctl restart networking"

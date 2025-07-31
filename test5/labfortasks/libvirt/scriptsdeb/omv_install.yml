@@ -1,0 +1,57 @@
+---
+- name: Install OpenMediaVault and update GRUB
+  hosts: omv
+  become: yes
+  vars:
+    omv_repo_url: "https://github.com/openmediavault/openmediavault.git"
+    omv_dest: "/opt/openmediavault"
+  tasks:
+
+    - name: Ensure apt cache is up to date
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - git
+          - wget
+          - gnupg
+          - ca-certificates
+        state: present
+
+    - name: Clone the OpenMediaVault installer repository
+      git:
+        repo: "{{ omv_repo_url }}"
+        dest: "{{ omv_dest }}"
+        version: master
+        update: no
+
+    - name: Run the OMV installer script
+      shell: |
+        bash {{ omv_dest }}/install
+      args:
+        chdir: "{{ omv_dest }}"
+        creates: /etc/openmediavault
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Reconfigure GRUB to include OMV kernel options (if needed)
+      lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: 'GRUB_CMDLINE_LINUX="quiet splash"'
+        backrefs: yes
+
+    - name: Update GRUB configuration
+      command: update-grub
+      register: grub_update
+
+    - name: Reboot if GRUB was updated
+      reboot:
+        msg: "Reboot initiated by Ansible after GRUB update"
+        connect_timeout: 5
+        reboot_timeout: 600
+      when: grub_update.changed
+
