@@ -6,7 +6,7 @@
     - name: Remove /dev/vdb2 mount entry
       lineinfile:
         path: /etc/fstab
-        regexp: '^/dev/vdb2\s+\/media\/OMV\b.*$'
+        regexp: '^/dev/vdb4\s+\/media\/OMV\b.*$'
         state: absent
 
     - name: Add /dev/vda2 mount entry if not present
