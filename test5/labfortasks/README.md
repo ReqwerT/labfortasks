@@ -76,7 +76,26 @@ This system only requires the following three applications:
   # Check virtualization support (should return a number > 0)
   egrep -c '(vmx|svm)' /proc/cpuinfo
   ```
-  
+
+
+> If you are going to boot the system in session mode (non-root), you must do the following:
+  - Install `qemu-bridge-helper` on your system and grant permissions:
+  - sudo apt install qemu-system-common bridge-utils
+  - Configured a whitelist for `qemu-bridge-helper`:
+  - Add the line "allow virbr0" to the `/etc/qemu/bridge.conf` file.
+  - Set `qemu-bridge-helper` to setuid (to run as non-root):
+  - ```bash
+    sudo chmod u+s /usr/lib/qemu/qemu-bridge-helper
+    ```
+  - After these steps, add the user to the libvirt and kvm groups:
+  - ```bash
+    sudo usermod -aG libvirt $(whoami)
+    sudo usermod -aG kvm $(whoami)
+    ```
+> NOTE: You must reboot your system for these changes to take effect.
+
+> If you are running the system in system mode (root):
+- It pulls network information from the default network.
 
 
 
@@ -102,7 +121,7 @@ git clone https://github.com/ReqwerT/labfortasks/
 
 cd labfortasks/libvirt/
 
-# 2. Run as ROOT
+# 2. Run as root or session
 vagrant up
 ```
 
