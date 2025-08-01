@@ -21,23 +21,25 @@
 
 ## Operating the System and Its Functioning
 
-To run the system, we first need to download the files from github. We should go to the libvirt folder with the terminal and type `vagrant up` as `root`.
+To run the system, we first need to download the files from github. We should go to the libvirt folder with the terminal and type `vagrant up` as `root` or `non-root`.
 
 ```bash
 cd /libvirt
 vagrant up
 ```
-
 This command:
-- Starts ubuntu VM with triggers:
-  - First, run the Windows VM with the before up trigger.
-  - Windows vm pulls ConfigurationRemotingForAnsible.ps1 from github and runs it
-  - Runs install_qemu.ps1 (enables Hyper-V, installs QEMU)
-  - Runs download.ps1 (installs Python, gdown, downloads disk.vmdk, creates disk1.vmdk)
-  - Close windows when finish all steps.
-- Starts Debian dualboot install:
-  - Static IP {your_default_network}.10
-  - Runs /preseed/auto_debian_install.sh scripts:
+- Starts the Ubuntu virtual machine with triggers and runs the following yml playbooks:
+  - `omv.yml`: This playbook automatically installs omv applications and configures the necessary settings on our OMV virtual machine.
+  - `change_network_nat.yml`: This playbook removes the static IP information we entered to prepare the OMV virtual machine.
+- First, it automatically installs the OMV virtual machine in disk.vmdk using preseed and installs the requirements with Ansible.
+- Starts the Windows virtual machine with the previous trigger.
+- The Windows virtual machine retrieves the ConfigurationRemotingForAnsible.ps1 file from GitHub and runs it.
+- Runs the install_qemu.ps1 file (enables Hyper-V and installs QEMU).
+- Copies the OMV virtual machine we just installed and the adjacent disk1.vmdk disk to the shrunk OMV disk.
+- Once all steps are complete, it shuts down Windows.
+- Starts the Debian dual-boot installation:
+- Static IP {your_default_network}.10
+- Runs the /preseed/auto_debian_install.sh scripts:
 
 ### Ansible Playbooks
 
@@ -66,7 +68,7 @@ This command:
 |------------------|------------------|------------------|------------|------------------|
 | Windows          | vagrant          | vagrant          | 1          | {your_default_network}.10  |
 | Debian Dualboot  | user / root      | userpass / rootpass | 1       | {your_default_network}.10 |
-| OMV (nested)     | root / admin     | 1647 / sanbox    | 2          | {your_default_network}.10 :8080  |
+| OMV (nested)     | root / admin     | rootpass / openmediavault    | 2          | {your_default_network}.10 :8080  |
 
 **Virt Level 1** = regular VM — **Virt Level 2** = nested (OMV inside Debian/Windows)
 
@@ -74,7 +76,7 @@ This command:
 
 ## Results
 
-  - As a result of these steps, a dual-boot structure was achieved within a single virtual machine. After typing the vagrant up command, all steps were performed sequentially. After the Vagrant Windows virtual machine was powered on, it was managed with Ansible in a new virtual machine created in the sidecar structure, and automated operations were performed. As a result, access to the OMV interface via the {your_default_ip}.10:8080 connection was successfully established. The Windows machine was then shut down, and the process for automatically installing Debian on the second disk was initiated. These processes involved accessing the prepared file provided by the host machine, and Debian was successfully installed on the new virtual machine. Grub was also successfully installed along with the installation. The installation was successfully confirmed, and the necessary operations were automatically performed with Ansible on the Debian virtual machine. The Linux machine was then shut down, and the temporary virtual machine definition created was deleted. Now we have a virtual machine with a dual-boot operating system, and no matter which operating system we select, it automatically accesses the OMV disk, starts a virtual machine with that disk, and we can successfully access the virtual machine.
+  - These steps resulted in a dual-boot structure within a single virtual machine. After typing the vagrant up command, all steps were performed sequentially. The OMV virtual machine was installed on the disk.vmdk disk created with preseed, and a new additional disk was created. After the Vagrant Windows virtual machine was started, it was managed with Ansible in a new virtual machine created in the sidecar structure, and automated operations were performed. As a result, access to the OMV interface via the {your_default_ip}.10:8080 connection was successfully established. The Windows machine was then shut down, and the automatic installation of Debian on the second disk was initiated. These operations involved accessing the prepared file provided by the host machine, and Debian was successfully installed in the new virtual machine. Grub was also successfully installed along with the installation. The installation was successfully confirmed, and the necessary operations were automatically performed with Ansible on the Debian virtual machine. The Linux machine was then shut down, and the temporary virtual machine definition created was deleted. Now we have a virtual machine with a dual-boot operating system, and no matter which operating system we choose, it automatically accesses the OMV disk, starts a virtual machine with that disk, and we can successfully access the virtual machine.
 
   - As a result of all these steps, our lab environment was automatically launched. Tests show that this environment was ready in approximately one hour. Regardless of the operating system selected, access to the commonly used exFAT-formatted OMV disks was seamless on all systems, and each time the virtual machine was restarted, the OMV virtual machine was automatically started within the virtual environment; access tests were completed successfully on both operating systems.
 
