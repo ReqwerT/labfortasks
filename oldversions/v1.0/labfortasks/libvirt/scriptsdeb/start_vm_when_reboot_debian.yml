@@ -1,0 +1,72 @@
+---
+- name: QEMU VM autostart (vda2 mount + NAT + systemd)
+  hosts: lin
+  become: yes
+  vars:
+    mount_point: /media/OMV
+    device: /dev/vdb2
+    vm_script_path: /usr/local/bin/start_qemu_vm.sh
+    vm_service_path: /etc/systemd/system/qemu-vm.service
+
+  tasks:
+
+  - name: Mount vda2 disk to /media/OMV
+    mount:
+      src: "{{ device }}"
+      path: "{{ mount_point }}"
+      fstype: auto
+      state: mounted
+
+  - name: Create QEMU startup script
+    copy:
+      dest: "{{ vm_script_path }}"
+      mode: '0755'
+      content: |
+        #!/bin/bash
+
+        # Re-mount VDA2 just in case
+        mountpoint="{{ mount_point }}"
+        device="{{ device }}"
+        if ! mount | grep -q "$mountpoint"; then
+          mount "$device" "$mountpoint"
+        fi
+
+        # Check if VM is already running
+        if pgrep -f "qemu-system-x86_64.*disk.vmdk" > /dev/null; then
+          echo "VM is already running."
+          exit 0
+        fi
+
+        # Start QEMU
+        /usr/bin/qemu-system-x86_64 \
+          -name auto-vm \
+          -m 4096 \
+          -smp 2 \
+          -drive file={{ mount_point }}/disk.vmdk,format=vmdk,if=virtio \
+          -drive file={{ mount_point }}/disk1.vmdk,format=vmdk,if=virtio \
+          -netdev user,id=net0,hostfwd=tcp::8080-:80,hostfwd=tcp::8443-:443,hostfwd=tcp::2222-:22 \
+          -device virtio-net-pci,netdev=net0 \
+          -nographic
+
+  - name: Create systemd service for QEMU autostart
+    copy:
+      dest: "{{ vm_service_path }}"
+      mode: '0644'
+      content: |
+        [Unit]
+        Description=QEMU Virtual Machine Autostart
+        After=network.target
+
+        [Service]
+        Type=simple
+        ExecStart={{ vm_script_path }}
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+
+  - name: Enable and start QEMU systemd service
+    systemd:
+      name: qemu-vm
+      enabled: true
+      state: restarted
