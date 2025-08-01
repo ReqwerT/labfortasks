@@ -166,4 +166,4 @@ We now have a dual-boot virtual machine:
 
 - If you want to read all report files, [click here](https://github.com/ReqwerT/labfortasks/blob/main/report.md)
 - If you want to see error tables, [click here](https://github.com/ReqwerT/labfortasks/blob/main/errors.md)
-- If you want to see old versions, [click here](https://github.com/ReqwerT/labfortasks/tree/main/oldversions/v1.0)
+- If you want to see old versions, [click here](https://github.com/ReqwerT/labfortasks/tree/main/oldversions)
