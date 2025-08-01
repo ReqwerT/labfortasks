@@ -4,7 +4,7 @@
   become: yes
   vars:
     mount_point: /media/OMV
-    device: /dev/vdb2
+    device: /dev/vdb4
     vm_script_path: /usr/local/bin/start_qemu_vm.sh
     vm_service_path: /etc/systemd/system/qemu-vm.service
 
