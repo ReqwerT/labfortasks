@@ -2,22 +2,33 @@
 
 ## Purpose
 
-Using Ansible within the virtual machines I created with Vagrant, I:
+Using Ansible on the virtual machines I created with Vagrant:
 
-- Created a system configured for automatic dual boot,
-- Provided automatic access to the OMV virtual machine via shared disks, regardless of the operating system booted, and ensured that the OMV VM automatically starts at every startup.
-- All of this can be done in about an hour with just the `vagrant up` command.
+- I created a system configured for automatic dual-booting.
+- I used shared disks, regardless of the operating system being booted. Before the system installation began, I installed the OMV virtual machine on disk.vmdk and created disk1.vmdk to add an additional disk.
+- I automatically accessed the OMV virtual machine from Windows within the shared folder I created with rsync.
+- I enabled the OMV virtual machine to start automatically on every startup.
+- I then copied my OMV disks to the OMV disk, which I formatted as exFAT.
+- All of this can be done in about an hour with just the vagrant up command.
 
-## Steps I Performed
 
-- Installed the latest version of QEMU on my Windows machine and enabled virtualization technologies.
-- Shrink my physical disk by 20 GB for OMV.
-- Formatted this disk in exFAT to make it accessible from Linux, macOS, and Windows.
-- Copy the OMV image file to this disk and also created an additional 10 GB `.vmdk` disk.
-- Automatically placed the `.ps1` and `.bat` files, which automatically start the OMV VM when Windows starts, in their respective folders.
-- I added the 25GB disk `lastden.qcow2` to the `Vagrantfile` for the dualboot Debian installation.
-- I automatically installed Debian on this disk using Preseed and provided Ansible access by assigning a static IP.
-- I installed QEMU with Ansible within Debian, mounted the OMV disk, and defined the systemd service to automatically start the OMV VM whenever Debian boots.
+
+##  Steps I Followed
+
+- First, to determine whether the user is logged in as session or system, I searched for the word session in the libvirt URI. If the word session is in the URI, I determine that the user is running as non-root and I retrieve the IP configuration information from virbr0. If the user is running as non-root and virbr0 is not active, I enter the root password and retrieve the subnet information from the default network. If the word session is not in the URI, this indicates that the user is running as root and that the virtual machine will run with qemu://system. In this case, I retrieve the subnet information from the default network.
+- I specify the IP addresses of the Windows and dualboot-debian virtual machines by adding .10 to the end of the subnet information. To avoid any confusion, I initially set the IP address of the OMV virtual machine to .15. This allows me to easily install OpenMediaVault on my virtual machine using Ansible.
+- Using the vagrant before trigger, I add the necessary IP information to my .ini files. This allows me to easily manage with Ansible.
+- Using the Vagrant Before trigger, I automatically installed the OMV virtual machine using the preseed config file in disk.vmdk. After this installation was completed successfully, I successfully installed the OpenMediaVault tools on my OMV virtual machine via Ansible.
+- After successfully installing OMV, I changed the IP configuration on the OMV virtual machine. My tests showed that when the IP configuration was set to static with extra-args, I couldn't access the virtual machine, even if I had initiated NAT with QEMU. The old configuration was interfering. Thanks to this change, I can now access it without any problems.
+- After finishing work on the OMV virtual machine, I start the Windows virtual machine. I entered the autostart:false parameter on my Vagrant Windows machine. It doesn't automatically start when I type vagrantup, and thanks to the Ubuntu trigger, it works exactly when it needs to.
+- I installed the latest version of QEMU on my Windows machine and enabled virtualization technologies.
+- I shrank my physical disk by 20 GB for OMV.
+- I formatted this disk in exFAT to make it accessible from Linux, macOS, and Windows.
+- I copied the OMV image file and disk1.vmdk to this disk.
+- I automatically placed the .ps1 and .bat files in their respective folders, which automatically start the OMV virtual machine when Windows starts.
+- I added the 25 GB lastden.qcow2 disk to the Vagrantfile for a dual-boot Debian installation.
+- I automatically installed Debian on this disk using Preseed and provided Ansible access by assigning it a static IP address.
+- I installed QEMU within Debian with Ansible, mounted the OMV disk, and configured the systemd service to automatically start the OMV virtual machine every time Debian starts.
 
 ## Requirements
 
