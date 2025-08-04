@@ -253,7 +253,7 @@ Vagrant.configure("2") do |config|
 
   # --------------------- Windows11 VM ---------------------
   config.vm.define "winvm" , autostart: false do |win|
-    win.vm.box      = "oopsme/windows11-22h2"
+    win.vm.box      = "tonyclemmey/windows11"
     win.vm.hostname = "winvm"
 
     win.vm.provider :libvirt do |libvirt|
